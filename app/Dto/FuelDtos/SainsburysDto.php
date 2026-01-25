@@ -28,8 +28,8 @@ class SainsburysDto extends BaseFuelDto
         }
 
         // latitude / longitude
-        $this->latitude = isset($data['latitude']) ? (is_numeric($data['latitude']) ? (float) $data['latitude'] : null) : ($data['lat'] ?? null);
-        $this->longitude = isset($data['longitude']) ? (is_numeric($data['longitude']) ? (float) $data['longitude'] : null) : ($data['lng'] ?? $data['lon'] ?? null);
+        $this->latitude = isset($data['location']['latitude']) ? (is_numeric($data['location']['latitude']) ? (float) $data['location']['latitude'] : null) : ($data['lat'] ?? null);
+        $this->longitude = isset($data['location']['longitude']) ? (is_numeric($data['location']['longitude']) ? (float) $data['location']['longitude'] : null) : ($data['lng'] ?? $data['lon'] ?? null);
 
         // prices: look for common fuel keys
         $prices = [];

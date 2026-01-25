@@ -34,6 +34,6 @@ class FuelAggregatorService
             }
         }
 
-        return $out;
+            return $out;
     }
 }
