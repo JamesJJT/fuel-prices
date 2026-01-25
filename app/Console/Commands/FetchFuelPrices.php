@@ -11,14 +11,12 @@ use App\Services\Fuel\TescoService;
 
 class FetchFuelPrices extends Command
 {
-    protected $signature = 'fuel:fetch {--pretty} {--force} {--country=GB} {--provider=}';
+    protected $signature = 'fuel:fetch {--force} {--country=GB} {--provider=}';
 
     protected $description = 'Fetch fuel prices from configured providers, insert into history, and print JSON.';
 
     public function handle(FuelAggregatorService $aggregator)
     {
-        $this->info('Fetching fuel prices...');
-
         $force = $this->option('force');
         $country = strtoupper($this->option('country') ?? 'GB');
 
@@ -63,11 +61,14 @@ class FetchFuelPrices extends Command
             }
 
             $providerInstance = app()->make($map[$key]);
-            $this->info("Running provider: {$key}");
             $data = $providerInstance->fetch();
+            $target = $key;
         } else {
             $data = $aggregator->fetchAll();
+            $target = 'all';
         }
+
+        $this->line("Updating {$target}");
 
         $now = Carbon::now();
         $insertedPriceRows = 0;
@@ -80,9 +81,21 @@ class FetchFuelPrices extends Command
             $source = $item['source'] ?? null;
             $providerSiteId = $item['id'] ?? null;
 
+            // Build name/address: name = address, address = address + postcode (if available)
+            $addr = $item['address'] ?? $item['addr'] ?? null;
+            $postcode = $item['postcode'] ?? $item['post_code'] ?? $item['postal_code'] ?? $item['zip'] ?? null;
+
+            $nameValue = $addr;
+            $addressValue = $addr;
+            if ($addr && $postcode) {
+                $addressValue = $addr . ', ' . $postcode;
+            } elseif (!$addr && $postcode) {
+                $addressValue = $postcode;
+            }
+
             $locationPayload = [
-                'name' => $item['name'] ?? null,
-                'address' => $item['address'] ?? null,
+                'name' => $nameValue,
+                'address' => $addressValue,
                 'latitude' => isset($item['latitude']) ? $item['latitude'] : null,
                 'longitude' => isset($item['longitude']) ? $item['longitude'] : null,
                 'country_code' => $country,
@@ -138,13 +151,7 @@ class FetchFuelPrices extends Command
             }
         }
 
-        if ($this->option('pretty')) {
-            $this->line(json_encode($data, JSON_PRETTY_PRINT));
-        } else {
-            $this->line(json_encode($data));
-        }
-
-        $this->info('Inserted '.$insertedPriceRows.' price rows into fuel_price_history.');
+        $this->line('Imported '.$insertedPriceRows);
 
         return 0;
     }
