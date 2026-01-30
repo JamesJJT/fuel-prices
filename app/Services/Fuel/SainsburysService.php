@@ -36,7 +36,6 @@ class SainsburysService implements FuelProviderInterface
             return [];
         }
 
-        // common shapes: top-level array, data/stations/features
         if (is_array($json) && array_values($json) === $json) {
             return $json;
         }
@@ -47,7 +46,6 @@ class SainsburysService implements FuelProviderInterface
             }
         }
 
-        // fallback: return empty
         return [];
     }
 }
