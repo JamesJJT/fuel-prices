@@ -139,6 +139,10 @@ const formatTimeAgo = (dateString: string) => {
     return `${diffDays}d ago`;
 };
 
+const kmToMiles = (km: number) => {
+    return (km * 0.621371).toFixed(1);
+};
+
 // Removed auto-location request to avoid popup issues
 </script>
 
@@ -247,7 +251,7 @@ const formatTimeAgo = (dateString: string) => {
                         <div v-if="location.distance !== null" class="mt-2">
                             <Badge variant="secondary" class="text-xs">
                                 <Navigation class="h-3 w-3 mr-1" />
-                                {{ location.distance }} km away
+                                {{ kmToMiles(location.distance) }} miles away
                             </Badge>
                         </div>
                     </CardHeader>

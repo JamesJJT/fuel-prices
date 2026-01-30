@@ -17,25 +17,18 @@ class FuelLocationController extends Controller
             $query->orderByDesc('recorded_at');
         }]);
 
-        // If user location is provided, calculate distance and sort by it
-        if ($userLat && $userLon) {
-            // Haversine formula for distance calculation in SQL
-            $query->selectRaw("
-                *,
-                (
-                    6371 * acos(
-                        cos(radians(?)) 
-                        * cos(radians(latitude)) 
-                        * cos(radians(longitude) - radians(?)) 
-                        + sin(radians(?)) 
-                        * sin(radians(latitude))
-                    )
-                ) AS distance
-            ", [$userLat, $userLon, $userLat])
-            ->orderBy('distance');
-        }
+        $locations = $query->get()->map(function ($location) use ($userLat, $userLon) {
+            // Calculate distance in PHP for SQLite compatibility
+            $distance = null;
+            if ($userLat && $userLon && $location->latitude && $location->longitude) {
+                $distance = $this->calculateDistance(
+                    $userLat,
+                    $userLon,
+                    $location->latitude,
+                    $location->longitude
+                );
+            }
 
-        $locations = $query->get()->map(function ($location) {
             // Get latest prices grouped by fuel type
             $latestPrices = $location->prices
                 ->groupBy('fuel_type')
@@ -48,7 +41,7 @@ class FuelLocationController extends Controller
                 'latitude' => $location->latitude,
                 'longitude' => $location->longitude,
                 'source' => $location->source,
-                'distance' => isset($location->distance) ? round($location->distance, 2) : null,
+                'distance' => $distance,
                 'prices' => $latestPrices->map(fn($price) => [
                     'fuel_type' => $price->fuel_type,
                     'price' => $price->price,
@@ -58,6 +51,11 @@ class FuelLocationController extends Controller
             ];
         });
 
+        // Sort by distance if user location is provided
+        if ($userLat && $userLon) {
+            $locations = $locations->sortBy('distance')->values();
+        }
+
         return Inertia::render('FuelLocations', [
             'locations' => $locations,
             'userLocation' => [
@@ -65,5 +63,27 @@ class FuelLocationController extends Controller
                 'lon' => $userLon,
             ],
         ]);
+    }
+
+    /**
+     * Calculate distance between two points using Haversine formula
+     * Returns distance in kilometers
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // km
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $distance = $earthRadius * $c;
+
+        return round($distance, 2);
     }
 }
