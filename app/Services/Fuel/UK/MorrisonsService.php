@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Services\Fuel;
+namespace App\Services\Fuel\UK;
 
 use Illuminate\Support\Facades\Http;
-use App\Dto\FuelDtos\AsdaDto;
+use App\Dto\FuelDtos\UK\MorrisonsDto;
+use App\Services\Fuel\FuelProviderInterface;
 
-class AsdaService implements FuelProviderInterface
+class MorrisonsService implements FuelProviderInterface
 {
-    protected string $url = 'https://storelocator.asda.com/fuel_prices_data.json';
+    protected string $url = 'https://www.morrisons.com/fuel-prices/fuel.json';
 
     public function fetch(): array
     {
@@ -23,7 +24,7 @@ class AsdaService implements FuelProviderInterface
 
         $out = [];
         foreach ($records as $rec) {
-            $dto = new AsdaDto($rec);
+            $dto = new MorrisonsDto($rec);
             $out[] = $dto->toArray();
         }
 

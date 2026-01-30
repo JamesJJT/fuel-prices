@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Dto\FuelDtos;
+namespace App\Dto\FuelDtos\UK;
 
-use App\Dto\FuelDtos\BaseFuelDto;
+use App\Dto\FuelDtos\UK\BaseFuelDto;
 
-class AsdaDto extends BaseFuelDto
+class ShellDto extends BaseFuelDto
 {
     public function __construct(array $data = [])
     {
-        parent::__construct([], 'asda');
+        parent::__construct([], 'shell');
 
         $this->id = $data['site_id'] ?? null;
         $this->name = $data['address'] ?? null;

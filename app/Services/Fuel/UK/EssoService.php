@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Services\Fuel;
+namespace App\Services\Fuel\UK;
 
 use Illuminate\Support\Facades\Http;
-use App\Dto\FuelDtos\SainsburysDto;
+use App\Dto\FuelDtos\UK\EssoDto;
+use App\Services\Fuel\FuelProviderInterface;
 
-class SainsburysService implements FuelProviderInterface
+class EssoService implements FuelProviderInterface
 {
-    protected string $url = 'https://api.sainsburys.co.uk/v1/exports/latest/fuel_prices_data.json';
+    protected string $url = 'https://fuelprices.esso.co.uk/latestdata.json';
 
     public function fetch(): array
     {
@@ -23,7 +24,7 @@ class SainsburysService implements FuelProviderInterface
 
         $out = [];
         foreach ($records as $rec) {
-            $dto = new SainsburysDto($rec);
+            $dto = new EssoDto($rec);
             $out[] = $dto->toArray();
         }
 

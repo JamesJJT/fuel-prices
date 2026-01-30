@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Dto\FuelDtos;
+namespace App\Dto\FuelDtos\UK;
 
-use App\Dto\FuelDtos\BaseFuelDto;
+use App\Dto\FuelDtos\UK\BaseFuelDto;
 
 class SainsburysDto extends BaseFuelDto
 {

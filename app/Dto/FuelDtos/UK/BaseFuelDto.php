@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\FuelDtos;
+namespace App\Dto\FuelDtos\UK;
 
 class BaseFuelDto
 {

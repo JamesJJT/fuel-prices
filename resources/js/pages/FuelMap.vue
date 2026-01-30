@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
@@ -42,9 +42,22 @@ const props = defineProps<Props>();
 const mapContainer = ref<HTMLElement | null>(null);
 const isLoadingLocation = ref(false);
 const locationError = ref<string | null>(null);
+const selectedSource = ref<string>('all');
 let map: L.Map | null = null;
 let userMarker: L.Marker | null = null;
 let markerClusterGroup: L.MarkerClusterGroup | null = null;
+
+const availableSources = computed(() => {
+    const sources = new Set(props.locations.map(l => l.source));
+    return Array.from(sources).sort();
+});
+
+const filteredLocations = computed(() => {
+    if (selectedSource.value === 'all') {
+        return props.locations;
+    }
+    return props.locations.filter(location => location.source === selectedSource.value);
+});
 
 const requestLocation = () => {
     if (!navigator.geolocation) {
@@ -103,6 +116,17 @@ const formatSourceName = (source: string) => {
         sainsburys: 'Sainsburys',
         tesco: 'Tesco',
         asda: 'Asda',
+        bp: 'BP',
+        esso: 'Esso',
+        asconagroup: 'Ascona Group',
+        jet: 'JET',
+        karan: 'Karan',
+        morrisons: 'Morrisons',
+        moto: 'Moto',
+        motorfuelgroup: 'Motor Fuel Group',
+        rontec: 'Rontec',
+        sgn: 'SGN',
+        shell: 'Shell',
     };
     return nameMap[source.toLowerCase()] || source.charAt(0).toUpperCase() + source.slice(1);
 };
@@ -112,6 +136,17 @@ const getSourceColor = (source: string) => {
         sainsburys: '#f97316',
         tesco: '#3b82f6',
         asda: '#16a34a',
+        bp: '#eab308',
+        esso: '#dc2626',
+        asconagroup: '#9333ea',
+        jet: '#334155',
+        karan: '#ec4899',
+        morrisons: '#059669',
+        moto: '#4f46e5',
+        motorfuelgroup: '#0891b2',
+        rontec: '#d97706',
+        sgn: '#65a30d',
+        shell: '#e11d48',
     };
     return colors[source.toLowerCase()] || '#6b7280';
 };
@@ -227,7 +262,7 @@ const initializeMap = () => {
     });
 
     // Add markers for all locations
-    props.locations.forEach(location => {
+    filteredLocations.value.forEach(location => {
         if (!location.latitude || !location.longitude) return;
 
         const markerColor = getSourceColor(location.source);
@@ -270,9 +305,9 @@ const initializeMap = () => {
     map.addLayer(markerClusterGroup);
 
     // Fit bounds to show all markers
-    if (props.locations.length > 0) {
+    if (filteredLocations.value.length > 0) {
         const bounds = L.latLngBounds(
-            props.locations
+            filteredLocations.value
                 .filter(l => l.latitude && l.longitude)
                 .map(l => [l.latitude, l.longitude] as [number, number])
         );
@@ -302,6 +337,20 @@ watch(() => props.locations, () => {
         initializeMap();
     }
 });
+
+watch(selectedSource, () => {
+    if (map) {
+        // Clear existing cluster group
+        if (markerClusterGroup) {
+            markerClusterGroup.clearLayers();
+            map.removeLayer(markerClusterGroup);
+        }
+        
+        // Re-initialize map with new data
+        map.remove();
+        initializeMap();
+    }
+});
 </script>
 
 <template>
@@ -317,7 +366,7 @@ watch(() => props.locations, () => {
                         Fuel Locations Map
                     </h1>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                        {{ locations.length }} locations | Click markers for prices
+                        {{ filteredLocations.length }} locations | Click markers for prices
                     </p>
                 </div>
                 
@@ -338,6 +387,29 @@ watch(() => props.locations, () => {
                 <p class="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-md">
                     {{ locationError }}
                 </p>
+            </div>
+
+            <!-- Filters -->
+            <div class="container mx-auto max-w-7xl mt-3">
+                <div class="flex flex-wrap gap-2">
+                    <Badge
+                        @click="selectedSource = 'all'"
+                        :variant="selectedSource === 'all' ? 'default' : 'outline'"
+                        class="cursor-pointer hover:opacity-80 transition-opacity"
+                    >
+                        All Sources ({{ locations.length }})
+                    </Badge>
+                    <Badge
+                        v-for="source in availableSources"
+                        :key="source"
+                        @click="selectedSource = source"
+                        :variant="selectedSource === source ? 'default' : 'outline'"
+                        :style="selectedSource === source ? `background-color: ${getSourceColor(source)}; border-color: ${getSourceColor(source)}` : ''"
+                        class="cursor-pointer hover:opacity-80 transition-opacity"
+                    >
+                        {{ formatSourceName(source) }} ({{ locations.filter(l => l.source === source).length }})
+                    </Badge>
+                </div>
             </div>
         </div>
 

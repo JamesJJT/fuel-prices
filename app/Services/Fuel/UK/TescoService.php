@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Services\Fuel;
+namespace App\Services\Fuel\UK;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Dto\FuelDtos\TescoDto;
+use App\Dto\FuelDtos\UK\TescoDto;
+use App\Services\Fuel\FuelProviderInterface;
 
 class TescoService implements FuelProviderInterface
 {

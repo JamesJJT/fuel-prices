@@ -113,6 +113,17 @@ const formatSourceName = (source: string) => {
         sainsburys: 'Sainsburys',
         tesco: 'Tesco',
         asda: 'Asda',
+        bp: 'BP',
+        esso: 'Esso',
+        asconagroup: 'Ascona Group',
+        jet: 'JET',
+        karan: 'Karan',
+        morrisons: 'Morrisons',
+        moto: 'Moto',
+        motorfuelgroup: 'Motor Fuel Group',
+        rontec: 'Rontec',
+        sgn: 'SGN',
+        shell: 'Shell',
     };
     return nameMap[source.toLowerCase()] || source.charAt(0).toUpperCase() + source.slice(1);
 };
@@ -122,6 +133,17 @@ const getSourceColor = (source: string) => {
         sainsburys: 'bg-orange-500',
         tesco: 'bg-blue-500',
         asda: 'bg-green-600',
+        bp: 'bg-yellow-500',
+        esso: 'bg-red-600',
+        asconagroup: 'bg-purple-600',
+        jet: 'bg-slate-700',
+        karan: 'bg-pink-500',
+        morrisons: 'bg-emerald-600',
+        moto: 'bg-indigo-600',
+        motorfuelgroup: 'bg-cyan-600',
+        rontec: 'bg-amber-600',
+        sgn: 'bg-lime-600',
+        shell: 'bg-rose-600',
     };
     return colors[source.toLowerCase()] || 'bg-gray-500';
 };
