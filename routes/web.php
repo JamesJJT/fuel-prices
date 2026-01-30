@@ -17,4 +17,6 @@ Route::get('dashboard', function () {
 
 Route::get('fuel-locations', [FuelLocationController::class, 'index'])->name('fuel-locations');
 
+Route::get('fuel-map', [FuelLocationController::class, 'map'])->name('fuel-map');
+
 require __DIR__.'/settings.php';
