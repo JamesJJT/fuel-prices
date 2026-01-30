@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Services\Fuel\FuelProviderInterface;
 use App\Services\Fuel\SainsburysService;
 use App\Services\Fuel\TescoService;
+use App\Services\Fuel\AsdaService;
 use App\Services\Fuel\FuelAggregatorService;
 
 class FuelServiceProvider extends ServiceProvider
@@ -20,11 +21,16 @@ class FuelServiceProvider extends ServiceProvider
             return new TescoService();
         });
 
-        // Bind the aggregator with the two providers by default
+        $this->app->singleton(AsdaService::class, function ($app) {
+            return new AsdaService();
+        });
+
+        // Bind the aggregator with all providers
         $this->app->singleton(FuelAggregatorService::class, function ($app) {
             $providers = [
                 $app->make(SainsburysService::class),
                 $app->make(TescoService::class),
+                $app->make(AsdaService::class),
             ];
 
             return new FuelAggregatorService($providers);

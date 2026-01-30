@@ -112,6 +112,7 @@ const formatSourceName = (source: string) => {
     const nameMap: Record<string, string> = {
         sainsburys: 'Sainsburys',
         tesco: 'Tesco',
+        asda: 'Asda',
     };
     return nameMap[source.toLowerCase()] || source.charAt(0).toUpperCase() + source.slice(1);
 };
@@ -120,6 +121,7 @@ const getSourceColor = (source: string) => {
     const colors: Record<string, string> = {
         sainsburys: 'bg-orange-500',
         tesco: 'bg-blue-500',
+        asda: 'bg-green-600',
     };
     return colors[source.toLowerCase()] || 'bg-gray-500';
 };
